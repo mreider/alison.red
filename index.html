@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alison Cohen - Resume</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            line-height: 1.7;
+            color: #4a4a4a;
+            font-weight: 300;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fafafa;
+        }
+        
+        .resume-container {
+            background: white;
+            padding: 45px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border-radius: 8px;
+        }
+        
+        header {
+            border-bottom: 2px solid #e8eef3;
+            padding-bottom: 25px;
+            margin-bottom: 35px;
+        }
+        
+        h1 {
+            margin: 0 0 12px 0;
+            color: #2c5282;
+            font-size: 2.1em;
+            font-weight: 500;
+            letter-spacing: -0.5px;
+        }
+        
+        .contact-info {
+            color: #6b7280;
+            font-size: 0.92em;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            font-weight: 400;
+        }
+        
+        .contact-info span {
+            white-space: nowrap;
+        }
+        
+        h2 {
+            color: #2c5282;
+            font-size: 1.2em;
+            font-weight: 500;
+            margin-top: 35px;
+            margin-bottom: 18px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #e8eef3;
+            letter-spacing: -0.3px;
+        }
+        
+        h3 {
+            color: #4a4a4a;
+            font-size: 1.05em;
+            font-weight: 500;
+            margin-bottom: 8px;
+            margin-top: 22px;
+        }
+        
+        .job {
+            margin-bottom: 22px;
+        }
+        
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        
+        .job-title {
+            font-weight: 500;
+            color: #2a2a2a;
+            font-size: 1.02em;
+        }
+        
+        .company {
+            color: #6b7280;
+            font-weight: 400;
+            font-style: normal;
+            padding-left: 6px;
+        }
+        
+        .date {
+            color: #9ca3af;
+            font-size: 0.88em;
+            font-weight: 400;
+        }
+        
+        ul {
+            margin: 8px 0;
+            padding-left: 22px;
+        }
+        
+        li {
+            margin-bottom: 7px;
+            line-height: 1.65;
+            color: #4a4a4a;
+            font-weight: 300;
+        }
+        
+        li strong {
+            font-weight: 500;
+        }
+        
+        .summary {
+            background: #f7fafc;
+            padding: 18px;
+            border-left: 2px solid #2c5282;
+            margin-bottom: 30px;
+            border-radius: 3px;
+        }
+        
+        .summary p {
+            margin: 0;
+            color: #4a4a4a;
+            font-weight: 400;
+            line-height: 1.7;
+        }
+        
+        .competencies {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 12px;
+            color: #4a4a4a;
+            font-weight: 400;
+        }
+        
+        .education-item {
+            margin-bottom: 16px;
+        }
+        
+        .degree {
+            font-weight: 500;
+            color: #2a2a2a;
+        }
+        
+        .school {
+            color: #6b7280;
+            font-weight: 300;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .resume-container {
+                box-shadow: none;
+                padding: 20px;
+                border-radius: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .resume-container {
+                padding: 25px;
+                border-radius: 0;
+            }
+            header div {
+                flex-direction: column !important;
+                text-align: center;
+                gap: 20px !important;
+            }
+            header img {
+                width: 90px !important;
+                height: 90px !important;
+            }
+            h1 {
+                font-size: 1.8em;
+                margin-bottom: 15px !important;
+            }
+            .contact-info {
+                justify-content: center;
+                gap: 12px;
+                font-size: 0.88em;
+            }
+            .job-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .date {
+                margin-top: 4px;
+            }
+            .competencies {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .resume-container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 1.6em;
+            }
+            h2 {
+                font-size: 1.1em;
+            }
+            .contact-info {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .summary {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="resume-container">
+        <header>
+            <div style="display: flex; align-items: center; gap: 30px;">
+                <img src="alison.jpeg" alt="Alison Cohen" style="width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 2px solid #e8eef3;">
+                <div style="flex: 1;">
+                    <h1>Alison Cohen</h1>
+                    <div class="contact-info">
+                        <span>📍 Vienna, Austria</span>
+                        <span>✉️ alison.cohen@gmail.com</span>
+                        <span>📱 +43 677 631 77110</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="summary">
+            <h2>Professional Summary</h2>
+            <p>Strategic HR Business Partner who transitioned from 20 years of educational leadership to tech HR excellence in Austria. Following family relocation, I leveraged crisis management and stakeholder engagement expertise as employee #4 at Storyblok, scaling HR frameworks through $100M+ funding across 45+ countries. Uniquely positioned to align employee aspirations with leadership vision in Austria's dynamic business environment.</p>
+        </section>
+
+        <section>
+            <h2>Professional Experience</h2>
+            
+            <div class="job">
+                <div class="job-header">
+                    <div>
+                        <span class="job-title">Senior HR Business Partner</span>
+                        <span class="company">| Storyblok</span>
+                    </div>
+                    <span class="date">2020 - Present</span>
+                </div>
+                <ul>
+                    <li><strong>Strategic Leadership Partnership:</strong> Trusted advisor to C-suite executives. Translate people analytics into actionable business intelligence.</li>
+                    <li><strong>Global Workforce Architecture:</strong> Orchestrated organizational scaling from startup to international enterprise across 45+ countries. Built multi-jurisdictional employment frameworks.</li>
+                    <li><strong>People Operations Excellence:</strong> Architected global policy ecosystems for family support, mobility, and performance management. Designed scalable talent lifecycle systems.</li>
+                    <li><strong>Transformational Change Management:</strong> Pioneered cultural integration initiatives and executive development programs. Align individual aspirations with organizational vision.</li>
+                </ul>
+            </div>
+
+            <div class="job">
+                <div class="job-header">
+                    <div>
+                        <span class="job-title">Executive Administrator</span>
+                        <span class="company">| Storyblok</span>
+                    </div>
+                    <span class="date">2019 - 2020</span>
+                </div>
+                <ul>
+                    <li>Foundational team member establishing people operations infrastructure during exponential growth. Culminated in $100M+ venture capital success.</li>
+                    <li>Orchestrated executive-level operational excellence. Architected scalable systems for international market penetration.</li>
+                </ul>
+            </div>
+
+            <div class="job">
+                <div class="job-header">
+                    <div>
+                        <span class="job-title">School Counselor</span>
+                        <span class="company">| College Park High School, California</span>
+                    </div>
+                    <span class="date">2017 - 2019</span>
+                </div>
+                <ul>
+                    <li>Orchestrated comprehensive academic pathways and career development strategies for diverse student populations</li>
+                    <li>Facilitated collaborative stakeholder engagement across educational teams, students, and families to optimize outcomes</li>
+                </ul>
+            </div>
+
+            <div class="job">
+                <div class="job-header">
+                    <div>
+                        <span class="job-title">Middle School Counselor</span>
+                        <span class="company">| Pleasant Hill Middle School, California</span>
+                    </div>
+                    <span class="date">2015 - 2017</span>
+                </div>
+                <ul>
+                    <li>Delivered integrated academic and social-emotional development programs for transitional middle school demographics</li>
+                    <li>Administered complex scheduling systems while mediating interpersonal dynamics and fostering collaborative environments</li>
+                </ul>
+            </div>
+
+            <div class="job">
+                <div class="job-header">
+                    <div>
+                        <span class="job-title">Counselor</span>
+                        <span class="company">| Miller Creek Middle School, San Rafael</span>
+                    </div>
+                    <span class="date">2004 - 2007</span>
+                </div>
+                <ul>
+                    <li>Executive leadership role within three-person administrative team, driving strategic institutional planning and comprehensive policy architecture</li>
+                    <li>Cultivated holistic support ecosystems addressing academic, social, and emotional development across diverse student communities</li>
+                </ul>
+            </div>
+
+            <div class="job">
+                <div class="job-header">
+                    <div>
+                        <span class="job-title">Counselor</span>
+                        <span class="company">| Mount Eden High School / Blackford Continuation High School</span>
+                    </div>
+                    <span class="date">2002 - 2003</span>
+                </div>
+                <ul>
+                    <li>Specialized intervention strategies for high-risk populations, addressing complex emotional and behavioral challenges with evidence-based therapeutic approaches</li>
+                    <li>Crisis leadership and labor relations expertise as primary incident response coordinator and exclusive union advocate for professional counseling staff</li>
+                    <li>Academic pathway optimization and post-secondary transition planning for non-traditional student populations</li>
+                </ul>
+            </div>
+
+            <div class="job">
+                <div class="job-header">
+                    <div>
+                        <span class="job-title">Guidance Advisor / At-Risk Counselor</span>
+                        <span class="company">| Campbell Union High School District</span>
+                    </div>
+                    <span class="date">2000 - 2002</span>
+                </div>
+                <ul>
+                    <li>Strategic administrative leadership within specialized educational institution serving vulnerable student populations requiring intensive intervention</li>
+                    <li>Authored comprehensive institutional assessment documentation for WASC accreditation while orchestrating state-mandated evaluation protocols</li>
+                    <li>Pioneered innovative peer mediation initiatives and therapeutic group interventions addressing behavioral regulation and conflict resolution</li>
+                </ul>
+            </div>
+
+            <h3>Early Career Experience</h3>
+            <ul style="list-style-type: none; padding-left: 0;">
+                <li style="font-weight: 400; margin-bottom: 5px;"><span style="font-weight: 500;">Administrative Coordinator</span>, University of San Francisco (1998-2000)</li>
+                <li style="font-weight: 400; margin-bottom: 5px;"><span style="font-weight: 500;">Program Coordinator</span>, Every Child Can Learn Foundation (1997-1998)</li>
+                <li style="font-weight: 400; margin-bottom: 5px;"><span style="font-weight: 500;">Staffing Service Coordinator</span>, ABA Staffing (1996-1997)</li>
+                <li style="font-weight: 400; margin-bottom: 5px;"><span style="font-weight: 500;">Ski Instructor</span>, Mammoth Mountain Ski Area (1993-1995)</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Core Competencies</h2>
+            <div class="competencies">
+                <div>• Strategic People Partnership</div>
+                <div>• Crisis Intervention & Conflict Resolution</div>
+                <div>• Employee Development & Goal Alignment</div>
+                <div>• Global Operations & Cultural Integration</div>
+                <div>• Organizational Psychology</div>
+                <div>• Stakeholder Engagement</div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Education & Certifications</h2>
+            
+            <div class="education-item">
+                <div class="degree">Master of Arts in Counseling</div>
+                <div class="school">San Jose State University, 2000</div>
+                <div style="color: #666; font-size: 0.95em;">Pupil Personnel Services Credential</div>
+            </div>
+            
+            <div class="education-item">
+                <div class="degree">Bachelor of Arts in Liberal Studies</div>
+                <div class="school">San Francisco State University, 1996</div>
+                <div style="color: #666; font-size: 0.94em; font-weight: 300;">Emphasis in Communications and Creative Arts</div>
+            </div>
+            
+            <div class="education-item">
+                <div class="degree">Certified HR Business Partner</div>
+                <div class="school">AIHR, 2023</div>
+            </div>
+            
+            <div class="education-item">
+                <div class="degree">California Clear Counseling Credential</div>
+                <div class="school">2000</div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
