@@ -59,29 +59,41 @@ def parse_resume_data(filename: str) -> Dict[str, Any]:
     else:
         data['competencies'] = []
 
-    # Parse education - hardcoded to match exact structure
-    data['education'] = [
-        {
-            'degree': 'Master of Arts in Counseling',
-            'school': 'San Jose State University, 2000',
-            'details': 'Pupil Personnel Services Credential'
-        },
-        {
-            'degree': 'Bachelor of Arts in Liberal Studies',
-            'school': 'San Francisco State University, 1996',
-            'details': 'Emphasis in Communications and Creative Arts'
-        },
-        {
-            'degree': 'Certified HR Business Partner',
-            'school': 'AIHR, 2023',
-            'details': None
-        },
-        {
-            'degree': 'California Clear Counseling Credential',
-            'school': '2000',
-            'details': None
-        }
-    ]
+    # Parse education from text file
+    data['education'] = []
+    edu_match = re.search(r'EDUCATION:\n\n(.+?)(?=\n[A-Z][A-Z]+:|$)', content, re.DOTALL)
+    if edu_match:
+        edu_text = edu_match.group(1).strip()
+        # Pattern to match: "August 2000         SAN JOSE STATE UNIVERSITY"
+        # followed by degree and credential lines
+        lines = edu_text.split('\n')
+        i = 0
+        while i < len(lines):
+            line = lines[i].strip()
+            if re.match(r'^[A-Za-z]+ \d{4}\s+[A-Z]', line):  # Date and school line
+                parts = re.split(r'\s{2,}', line)  # Split on multiple spaces
+                if len(parts) >= 2:
+                    date = parts[0]
+                    school = parts[1]
+                    # Get degree from next line
+                    degree = ""
+                    details = ""
+                    if i + 1 < len(lines):
+                        degree = lines[i + 1].strip()
+                    if i + 2 < len(lines) and lines[i + 2].strip() and not re.match(r'^[A-Za-z]+ \d{4}\s+[A-Z]', lines[i + 2]):
+                        details = lines[i + 2].strip()
+                        i += 1  # Skip the details line
+
+                    data['education'].append({
+                        'degree': degree,
+                        'school': f"{school}, {date.split()[-1]}",  # School, Year format
+                        'details': details if details else None
+                    })
+                    i += 2  # Skip degree line
+                else:
+                    i += 1
+            else:
+                i += 1
 
     # Parse personal
     personal_match = re.search(r'PERSONAL:\n(.+)', content, re.DOTALL)
@@ -187,28 +199,17 @@ def generate_html(data: Dict[str, Any]) -> str:
     for comp in data['competencies']:
         comp_html += f"                    <div>• {comp}</div>\n"
 
-    # Generate education HTML - exact match
-    edu_html = """            <div class="education-item">
-                <div class="degree">Master of Arts in Counseling</div>
-                <div class="school">San Jose State University, 2000</div>
-                <div style="color: #666; font-size: 0.95em;">Pupil Personnel Services Credential</div>
+    # Generate education HTML from parsed data
+    edu_html = ""
+    for edu in data['education']:
+        edu_html += f"""            <div class="education-item">
+                <div class="degree">{edu['degree']}</div>
+                <div class="school">{edu['school']}</div>"""
+        if edu['details']:
+            edu_html += f"""
+                <div style="color: #666; font-size: 0.95em;">{edu['details']}</div>"""
+        edu_html += """
             </div>
-
-            <div class="education-item">
-                <div class="degree">Bachelor of Arts in Liberal Studies</div>
-                <div class="school">San Francisco State University, 1996</div>
-                <div style="color: #666; font-size: 0.94em; font-weight: 300;">Emphasis in Communications and Creative Arts</div>
-            </div>
-
-            <div class="education-item">
-                <div class="degree">Certified HR Business Partner</div>
-                <div class="school">AIHR, 2023</div>
-            </div>
-
-            <div class="education-item">
-                <div class="degree">California Clear Counseling Credential</div>
-                <div class="school">2000</div>
-                </div>
 
 """
 
