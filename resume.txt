@@ -1,51 +1,57 @@
-NAME: Alison Cohen
-PHONE: +43 677 629 00590
-EMAIL: me@alison.red
+NAME: Alison S. Cohen
+PHONE: +4367763177110
+EMAIL: alison.cohen@gmail.com
 LOCATION: Vienna, Austria
 
 SUMMARY:
-HR Business Partner who transitioned from 10 years of student counseling in California to 6 years of tech HR in Austria. Expert in workplace investigations, conflict resolution, and employee relations from educational background. Managed complex people issues across 45+ countries, providing consultation to resolve conflicts, support manager effectiveness, and ensure fair outcomes while partnering with legal to minimize risk and maintain positive workplace culture.
+In January 2020, I successfully transitioned my robust counseling expertise to become an integral part of HR in a fast-growing global tech startup.
 
-TRANSITION NOTE:
-From school counseling in California to a Tech HR career in Austria after family relocation
+JOB TITLE: Senior People Experience Business Partner
+COMPANY: Storyblok GmbH, Linz, Upper Austria
+DATES: Nov 2023 - July 2025
+- Provided strategic coaching and advising for all levels of leadership in the Product division
+- Supported team members with employee relations topics
+- Created policies for new UK and US entities
+- Utilized data from engagement surveys to propose actions to increase team member morale and improve day-to-day experiences
 
-JOB TITLE: Senior HR Business Partner
-COMPANY: Storyblok, Austria
-DATES: 2020 - Present
-- Employee Relations Consultation: Provide tactical guidance to managers across 45+ countries on conflict resolution, performance improvement, and progressive discipline. Support manager effectiveness while ensuring adherence to local labor laws.
-- Investigations & Resolution: Conduct neutral, timely investigations into workplace issues. Document findings, provide recommendations, and partner with HRBPs and leadership to achieve fair resolutions.
-- Termination & Transition Management: Own all voluntary and involuntary separations from initial consultation through offboarding. Partner with Legal, Payroll, and People Ops to ensure compliant, respectful transitions.
-- Process & Training Development: Analyze employee relations trends to identify patterns. Create SOPs for investigations and deliver manager training on conflict resolution and policy interpretation.
+JOB TITLE: People Experience Partner
+COMPANY: Storyblok GmbH, Linz, Upper Austria
+DATES: Nov 2021 - Oct 2023
+- Retooled existing People processes to handle growth from 50 team members to 150 team members
+- Created new People processes and policies such as Relocation, Maternity, Parental Leave, Long-Term Leave, Infringement & Grievance
+- Engaged with EOR partners to address labor law issues and concerns
+- Handled all aspects of the team member lifecycle for five different employment types for team members in over 45 different countries
 
-JOB TITLE: Executive Administrator
-COMPANY: Storyblok, Linz, Austria
-DATES: 2019 - 2020
-- Built initial people operations infrastructure including employee relations processes and offboarding workflows during rapid scaling to $100M+ valuation.
-- Managed compliance tracking through Jira and served as liaison between Legal and People Operations for international employment matters.
+JOB TITLE: Executive Assistant to CEO and VP of Operations
+COMPANY: Storyblok GmbH, Linz, Upper Austria
+DATES: Jan 2020 - Oct 2021
+- Managed expenses and purchasing for an international, hyper-growth software startup
+- Developed and implemented onboarding processes for new hires
+- Delivered corporate culture initiatives to encourage employee connectedness
+- Created foundational company processes such as Code of Conduct, Onboarding, Offboarding, Time Off
 
 JOB TITLE: School Counselor
-COMPANY: Mt. Diablo Unified School District, Concord, California
-DATES: 2015 - 2019
-- Provided academic and career counseling for diverse student populations
-- Conducted crisis intervention and collaborated with stakeholders to support student success
+COMPANY: Mt. Diablo Unified School District, Pleasanton, CA
+DATES: Aug 2015 - Jun 2019
 
-JOB TITLE: Counselor
-COMPANY: Miller Creek Middle School, San Rafael, California
-DATES: 2004 - 2007
-- Served as one of three school administrators, participating in planning and policy development
-- Managed complex student behavioral issues and facilitated conflict resolution
+JOB TITLE: Short-term substitute School Counselor
+COMPANY: Stanley Middle School, Lafayette, CA
+DATES: Aug 2014 - Dec 2014
 
-JOB TITLE: Counselor
-COMPANY: Mount Eden High School, Hayward, California
-DATES: 2002 - 2003
-- Served as primary crisis manager and union representative
-- Specialized in supporting at-risk students facing emotional and substance abuse challenges
+MATERNITY LEAVE / STAY AT HOME MOM
+DATES: Feb 2007 - Jul 2014
 
-JOB TITLE: Guidance Advisor
-COMPANY: Campbell Union High School District, Campbell, California
-DATES: 2000 - 2002
-- Administrative role at continuation high school including WASC accreditation coordination
-- Implemented Peer Mediation Program and facilitated anger management groups
+JOB TITLE: School Counselor
+COMPANY: Miller Creek Middle School, San Rafael, CA
+DATES: Aug 2004 - Feb 2007
+
+JOB TITLE: School Counselor
+COMPANY: Mt. Eden High School, Hayward, CA
+DATES: Aug 2002 - Jun 2004
+
+JOB TITLE: Conflict Mediation Counselor/At-Risk Counselor
+COMPANY: Campbell Union High School District, Campbell, CA
+DATES: Aug 2000 - Jun 2002
 
 EARLY CAREER:
 Administrative Coordinator, University of San Francisco, California (1998-2000)
@@ -55,9 +61,9 @@ Ski Instructor, Mammoth Mountain Ski Area, California (1993-1995)
 
 CORE COMPETENCIES:
 • Crisis Intervention & Conflict Resolution
-• Employee Development & Goal Alignment
+• Employee Relations & Workplace Investigations
 • Global Operations & Cultural Integration
-• Organizational Psychology
+• Process Development & Change Management
 
 EDUCATION:
 Master of Arts in Counseling
