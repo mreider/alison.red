@@ -32,8 +32,10 @@ def parse_resume_data(filename: str) -> Dict[str, Any]:
 
     # Parse jobs
     data['jobs'] = []
-    job_pattern = r'JOB TITLE: (.+?)\nCOMPANY: (.+?)\nDATES: (.+?)\n((?:- .+\n?)+)'
-    for match in re.finditer(job_pattern, content):
+
+    # Pattern for jobs with bullets (HR roles)
+    job_with_bullets_pattern = r'JOB TITLE: (.+?)\nCOMPANY: (.+?)\nDATES: (.+?)\n((?:- .+\n?)+)'
+    for match in re.finditer(job_with_bullets_pattern, content):
         title, company, dates, bullets = match.groups()
         bullet_list = [line.strip('- ').strip() for line in bullets.split('\n') if line.strip().startswith('-')]
         data['jobs'].append({
@@ -41,6 +43,30 @@ def parse_resume_data(filename: str) -> Dict[str, Any]:
             'company': company,
             'dates': dates,
             'bullets': bullet_list
+        })
+
+    # Pattern for jobs without bullets (counseling roles)
+    job_without_bullets_pattern = r'JOB TITLE: (.+?)\nCOMPANY: (.+?)\nDATES: (.+?)(?=\n\n|\nJOB TITLE|\nMATERNITY|\nEARLY|\nCORE|\nEDUCATION|\nPERSONAL|$)'
+    for match in re.finditer(job_without_bullets_pattern, content):
+        title, company, dates = match.groups()
+        # Skip if this job was already found with bullets
+        already_exists = any(job['title'] == title.strip() and job['company'] == company.strip() for job in data['jobs'])
+        if not already_exists:
+            data['jobs'].append({
+                'title': title.strip(),
+                'company': company.strip(),
+                'dates': dates.strip(),
+                'bullets': []
+            })
+
+    # Handle maternity leave separately
+    maternity_match = re.search(r'MATERNITY LEAVE / STAY AT HOME MOM\nDATES: (.+)', content)
+    if maternity_match:
+        data['jobs'].append({
+            'title': 'Maternity Leave / Stay at Home Mom',
+            'company': '',
+            'dates': maternity_match.group(1).strip(),
+            'bullets': []
         })
 
     # Parse early career
@@ -131,7 +157,7 @@ def generate_html(data: Dict[str, Any]) -> str:
                 <div class="job-header">
                     <div>
                         <span class="job-title">{job['title']}</span>
-                        <span class="company">| {job['company']}</span>
+                        <span class="company">{job['company']}</span>
                     </div>
                     <span class="date">{job['dates']}</span>
                 </div>
@@ -141,37 +167,83 @@ def generate_html(data: Dict[str, Any]) -> str:
 
 """
 
-    # Add transition callout
-    if data['transition']:
-        jobs_html += f"""            <div class="transition-callout">
+    # Add transition callout before California jobs
+    jobs_html += f"""            <div class="transition-callout">
                 <div class="transition-title">🌍 Career transition and international move</div>
-                <div class="transition-subtitle">{data['transition']}</div>
+                <div class="transition-subtitle">From school counseling in California to a Tech HR career in Austria after family relocation</div>
             </div>
 
 """
 
-    # California jobs
-    for job in california_jobs:
-        bullets_html = ""
-        for bullet in job['bullets']:
-            # Add <strong> tags for text before colons
-            if ':' in bullet:
-                parts = bullet.split(':', 1)
-                formatted_bullet = f"<strong>{parts[0]}:</strong>{parts[1]}"
-                bullets_html += f"                    <li>{formatted_bullet}</li>\n"
-            else:
-                bullets_html += f"                    <li>{bullet}</li>\n"
+    # Separate counseling jobs and maternity leave
+    counseling_jobs = []
+    maternity_job = None
 
-        jobs_html += f"""            <div class="job">
+    for job in california_jobs:
+        if 'Maternity Leave' in job['title']:
+            maternity_job = job
+        elif 'School Counselor' in job['title'] or 'Counselor' in job['title']:
+            counseling_jobs.append(job)
+        else:
+            # Handle any other California jobs with bullets
+            if job['bullets']:
+                bullets_html = ""
+                for bullet in job['bullets']:
+                    # Add <strong> tags for text before colons
+                    if ':' in bullet:
+                        parts = bullet.split(':', 1)
+                        formatted_bullet = f"<strong>{parts[0]}:</strong>{parts[1]}"
+                        bullets_html += f"                    <li>{formatted_bullet}</li>\n"
+                    else:
+                        bullets_html += f"                    <li>{bullet}</li>\n"
+
+                jobs_html += f"""            <div class="job">
                 <div class="job-header">
                     <div>
                         <span class="job-title">{job['title']}</span>
-                        <span class="company">| {job['company']}</span>
+                        <span class="company">{job['company']}</span>
                     </div>
                     <span class="date">{job['dates']}</span>
                 </div>
                 <ul>
 {bullets_html}                </ul>
+            </div>
+
+"""
+
+    # Add counseling section
+    if counseling_jobs:
+        jobs_html += """            <div style="page-break-before: always; height: 1px; margin: 0; padding: 0;"></div>
+            <h3 style="margin-top: 0;">School Counseling Positions</h3>
+            <p>As a school counselor across various districts, I provided comprehensive student support including:</p>
+            <ul style="margin-bottom: 25px;">
+                <li>Counseled students with emotional and substance abuse challenges, acting as primary crisis manager for complex conflicts</li>
+                <li>Scheduled all students in appropriate courses for graduation and directed seniors toward college admission requirements</li>
+                <li>Conducted student assessment tests for both state and district, providing valuable legal guidance as union representative</li>
+                <li>Facilitated conflict mediation, anger management groups, and family meetings based on individual student needs</li>
+            </ul>
+
+"""
+
+        # Add counseling jobs in chronological order
+        for job in counseling_jobs:
+            jobs_html += f"""            <div class="job counseling-job">
+                <div class="job-header">
+                    <div>
+                        <span class="job-title">{job['title']}</span>
+                        <span class="company">{job['company']}</span>
+                    </div>
+                    <span class="date">{job['dates']}</span>
+                </div>
+            </div>
+
+"""
+
+        # Add maternity leave callout
+        if maternity_job:
+            jobs_html += f"""            <div class="maternity-callout">
+                <div class="maternity-title">🍼 Maternity Leave / Stay at Home Mom</div>
+                <div class="maternity-subtitle">{maternity_job['dates']}</div>
             </div>
 
 """
@@ -331,7 +403,7 @@ def generate_html(data: Dict[str, Any]) -> str:
             color: #1a202c;
             font-size: 1.3em;
             font-weight: 500;
-            margin: 45px 0 25px 0;
+            margin: 40px 0 20px 0;
             padding-bottom: 8px;
             border-bottom: 1px solid #eaeaea;
             letter-spacing: -0.2px;
@@ -344,7 +416,7 @@ def generate_html(data: Dict[str, Any]) -> str:
         .summary {{
             background: #f8f9fa;
             padding: 25px;
-            margin-bottom: 35px;
+            margin-bottom: 30px;
             border-left: 3px solid #34495e;
         }}
 
@@ -356,7 +428,30 @@ def generate_html(data: Dict[str, Any]) -> str:
         }}
 
         .job {{
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+        }}
+
+        .counseling-job {{
+            margin-bottom: 8px;
+            line-height: 1.2;
+            opacity: 0.8;
+        }}
+
+        .counseling-job .job-header {{
+            margin-bottom: 0;
+        }}
+
+        .counseling-job .job-title {{
+            font-size: 0.95em;
+            font-weight: 400;
+        }}
+
+        .counseling-job .company {{
+            font-size: 0.9em;
+        }}
+
+        .counseling-job .date {{
+            font-size: 0.85em;
         }}
 
         .job-header {{
@@ -418,7 +513,7 @@ def generate_html(data: Dict[str, Any]) -> str:
         }}
 
         .education-item {{
-            margin-bottom: 18px;
+            margin-bottom: 15px;
         }}
 
         .degree {{
@@ -435,8 +530,17 @@ def generate_html(data: Dict[str, Any]) -> str:
 
         .transition-callout {{
             text-align: center;
-            margin: 35px 0;
-            padding: 25px;
+            margin: 15px 0;
+            padding: 18px;
+            background: #f8f9fa;
+            border: 1px solid #eaeaea;
+            position: relative;
+        }}
+
+        .maternity-callout {{
+            text-align: center;
+            margin: 15px 0;
+            padding: 15px;
             background: #f8f9fa;
             border: 1px solid #eaeaea;
             position: relative;
@@ -449,8 +553,20 @@ def generate_html(data: Dict[str, Any]) -> str:
             color: #2c3e50;
         }}
 
+        .maternity-title {{
+            font-size: 1.05em;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #2c3e50;
+        }}
+
         .transition-subtitle {{
             font-size: 0.95em;
+            color: #6b7280;
+        }}
+
+        .maternity-subtitle {{
+            font-size: 0.9em;
             color: #6b7280;
         }}
 
@@ -461,8 +577,13 @@ def generate_html(data: Dict[str, Any]) -> str:
             margin: 25px 0 15px 0;
         }}
 
+        .page-break {{
+            page-break-before: always;
+            break-before: page;
+        }}
+
         section {{
-            margin-bottom: 30px;
+            margin-bottom: 35px;
         }}
 
         section:last-child {{
@@ -576,12 +697,24 @@ def generate_html(data: Dict[str, Any]) -> str:
                 padding: 12px;
                 page-break-inside: avoid;
             }}
+            .maternity-callout {{
+                margin: 12px 0;
+                padding: 10px;
+                page-break-inside: avoid;
+            }}
             .transition-title {{
                 font-size: 0.95em;
                 margin-bottom: 4px;
             }}
+            .maternity-title {{
+                font-size: 0.9em;
+                margin-bottom: 3px;
+            }}
             .transition-subtitle {{
                 font-size: 0.85em;
+            }}
+            .maternity-subtitle {{
+                font-size: 0.8em;
             }}
             .transition-context {{
                 font-size: 0.8em;
@@ -596,6 +729,10 @@ def generate_html(data: Dict[str, Any]) -> str:
             h3 {{
                 font-size: 1em;
                 margin: 15px 0 10px 0;
+            }}
+            .page-break {{
+                page-break-before: always !important;
+                break-before: page !important;
             }}
             /* Personal section styling for print */
             section:last-child p {{
@@ -702,10 +839,6 @@ def generate_html(data: Dict[str, Any]) -> str:
 
 {edu_html}            </section>
 
-            <section>
-                <h2>Personal</h2>
-                <p style="color: #6b7280; font-size: 0.95em; line-height: 1.6;">{data['personal']}</p>
-            </section>
         </div>
     </div>
 </body>
