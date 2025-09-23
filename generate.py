@@ -214,14 +214,10 @@ def generate_html(data: Dict[str, Any]) -> str:
     # Add counseling section
     if counseling_jobs:
         jobs_html += """            <div style="page-break-before: always; height: 1px; margin: 0; padding: 0;"></div>
-            <h3 style="margin-top: 0;">School Counseling Positions</h3>
-            <p>As a school counselor across various districts, I provided comprehensive student support including:</p>
-            <ul style="margin-bottom: 25px;">
-                <li>Counseled students with emotional and substance abuse challenges, acting as primary crisis manager for complex conflicts</li>
-                <li>Scheduled all students in appropriate courses for graduation and directed seniors toward college admission requirements</li>
-                <li>Conducted student assessment tests for both state and district, providing valuable legal guidance as union representative</li>
-                <li>Facilitated conflict mediation, anger management groups, and family meetings based on individual student needs</li>
-            </ul>
+            <div class="transition-callout">
+                <div class="transition-title">🎓 School Counseling Positions</div>
+                <div class="transition-subtitle">As a school counselor across various districts, I provided comprehensive student support including conflict resolution, crisis management, academic guidance, and family support services</div>
+            </div>
 
 """
 
