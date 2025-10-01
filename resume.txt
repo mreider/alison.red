@@ -4,7 +4,7 @@ EMAIL: me@alison.red
 LOCATION: Vienna, Austria
 
 SUMMARY:
-First HR employee at a hyper-growth remote-only tech startup, building the People function from the ground up and scaling operations from 50 to 150+ team members across 45+ countries. Created foundational HR policies and processes, leveraging counseling background in conflict resolution following career transition from California to Austria.
+First HR employee at a hyper-growth remote-only tech startup, building the People function from the ground up and scaling operations from 30 to 250+ team members across 45+ countries. Created foundational HR policies and processes, leveraging counseling background in conflict resolution following career transition from California to Austria.
 
 JOB TITLE: Senior People Experience Business Partner
 COMPANY: Storyblok GmbH, Austria
@@ -17,7 +17,7 @@ DATES: Nov 2023 - July 2025
 JOB TITLE: People Experience Partner
 COMPANY: Storyblok GmbH, Austria
 DATES: Nov 2021 - Oct 2023
-- Retooled existing People processes to handle growth from 50 team members to 150 team members
+- Retooled existing People processes to handle growth from 30 team members to 250 team members
 - Created new People processes and policies such as Relocation, Maternity, Parental Leave, Long-Term Leave, Infringement & Grievance
 - Engaged with EOR partners to address labor law issues and concerns
 - Handled all aspects of the team member lifecycle for five different employment types for team members in over 45 different countries
