@@ -71,37 +71,73 @@ def parse_resume_data(filename: str) -> Dict[str, Any]:
 
     # Parse education from text file
     data['education'] = []
-    edu_match = re.search(r'EDUCATION:\n\n(.+?)(?=\n[A-Z][A-Z]+:|$)', content, re.DOTALL)
+    edu_match = re.search(r'EDUCATION:\n\n(.+?)(?=\n[A-Z][A-Z\s&]+:|$)', content, re.DOTALL)
     if edu_match:
         edu_text = edu_match.group(1).strip()
-        # Pattern to match: "August 2000         SAN JOSE STATE UNIVERSITY"
-        # followed by degree and credential lines
         lines = edu_text.split('\n')
         i = 0
         while i < len(lines):
             line = lines[i].strip()
-            if re.match(r'^[A-Za-z]+ \d{4}\s+[A-Z]', line):  # Date and school line
-                parts = re.split(r'\s{2,}', line)  # Split on multiple spaces
-                if len(parts) >= 2:
-                    date = parts[0]
-                    school = parts[1]
-                    # Get degree from next line
-                    degree = ""
-                    details = ""
-                    if i + 1 < len(lines):
-                        degree = lines[i + 1].strip()
-                    if i + 2 < len(lines) and lines[i + 2].strip() and not re.match(r'^[A-Za-z]+ \d{4}\s+[A-Z]', lines[i + 2]):
-                        details = lines[i + 2].strip()
-                        i += 1  # Skip the details line
+            # New format: degree comes first
+            if line and not line.startswith('Graduated') and not line.startswith('Pupil Personnel'):
+                degree = line
+                school = ""
+                date = ""
+                details = ""
 
-                    data['education'].append({
-                        'degree': degree,
-                        'school': f"{school}, {date.split()[-1]}",  # School, Year format
-                        'details': details if details else None
-                    })
-                    i += 2  # Skip degree line
-                else:
-                    i += 1
+                # Get school from next line
+                if i + 1 < len(lines):
+                    school = lines[i + 1].strip()
+
+                # Get graduation date from next line
+                if i + 2 < len(lines) and lines[i + 2].strip().startswith('Graduated'):
+                    date = lines[i + 2].strip().replace('Graduated ', '')
+                    i += 1  # Skip the date line
+
+                # Check for additional details (like credentials)
+                if i + 2 < len(lines) and lines[i + 2].strip() and not lines[i + 2].strip().startswith('Bachelor') and not lines[i + 2].strip().startswith('Master'):
+                    details = lines[i + 2].strip()
+                    i += 1  # Skip the details line
+
+                data['education'].append({
+                    'degree': degree,
+                    'school': school,
+                    'date': date,
+                    'details': details if details else None
+                })
+                i += 2  # Skip school line
+            else:
+                i += 1
+
+    # Parse licenses & certifications
+    data['certifications'] = []
+    cert_match = re.search(r'LICENSES & CERTIFICATIONS:\n\n(.+?)(?=\n[A-Z][A-Z\s&]+:|$)', content, re.DOTALL)
+    if cert_match:
+        cert_text = cert_match.group(1).strip()
+        lines = cert_text.split('\n')
+        i = 0
+        while i < len(lines):
+            line = lines[i].strip()
+            # New format: certification name comes first
+            if line and not line.startswith('Issued'):
+                cert_name = line
+                organization = ""
+                date = ""
+
+                # Get organization from next line
+                if i + 1 < len(lines):
+                    organization = lines[i + 1].strip()
+
+                # Get issue date from next line
+                if i + 2 < len(lines) and lines[i + 2].strip().startswith('Issued'):
+                    date = lines[i + 2].strip().replace('Issued ', '')
+
+                data['certifications'].append({
+                    'name': cert_name,
+                    'organization': organization,
+                    'date': date
+                })
+                i += 3  # Skip organization and date lines
             else:
                 i += 1
 
@@ -189,11 +225,23 @@ def generate_html(data: Dict[str, Any]) -> str:
     for edu in data['education']:
         edu_html += f"""            <div class="education-item">
                 <div class="degree">{edu['degree']}</div>
-                <div class="school">{edu['school']}</div>"""
+                <div class="school">{edu['school']}</div>
+                <div class="cert-date">{edu['date']}</div>"""
         if edu['details']:
             edu_html += f"""
-                <div style="color: #666; font-size: 0.95em;">{edu['details']}</div>"""
+                <div style="color: #666; font-size: 0.95em; margin-top: 5px;">{edu['details']}</div>"""
         edu_html += """
+            </div>
+
+"""
+
+    # Generate certifications HTML
+    cert_html = ""
+    for cert in data['certifications']:
+        cert_html += f"""            <div class="certification-item">
+                <div class="cert-name">{cert['name']}</div>
+                <div class="cert-org">{cert['organization']}</div>
+                <div class="cert-date">Issued {cert['date']}</div>
             </div>
 
 """
@@ -400,23 +448,55 @@ def generate_html(data: Dict[str, Any]) -> str:
             padding: 16px 20px;
             background: #f8f9fa;
             border-radius: 6px;
-            border-left: 3px solid #e9ecef;
+            border-left: 3px solid #34495e;
         }}
 
         .education-item {{
             margin-bottom: 15px;
+            padding: 18px 20px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #34495e;
         }}
 
         .degree {{
             font-weight: 500;
             color: #1a202c;
             font-size: 1.05em;
+            margin-bottom: 5px;
         }}
 
         .school {{
             color: #6b7280;
             font-weight: 400;
-            margin-top: 3px;
+            margin-bottom: 3px;
+        }}
+
+        .certification-item {{
+            margin-bottom: 15px;
+            padding: 18px 20px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #34495e;
+        }}
+
+        .cert-name {{
+            font-weight: 500;
+            color: #1a202c;
+            font-size: 1.05em;
+            margin-bottom: 5px;
+        }}
+
+        .cert-org {{
+            color: #6b7280;
+            font-weight: 400;
+            margin-bottom: 3px;
+        }}
+
+        .cert-date {{
+            color: #9ca3af;
+            font-size: 0.9em;
+            font-weight: 400;
         }}
 
 
@@ -542,6 +622,22 @@ def generate_html(data: Dict[str, Any]) -> str:
             .school {{
                 font-size: 0.85em;
             }}
+            .certification-item {{
+                margin-bottom: 10px;
+                padding: 10px 12px;
+                page-break-inside: avoid;
+            }}
+            .cert-name {{
+                font-size: 0.95em;
+                margin-bottom: 3px;
+            }}
+            .cert-org {{
+                font-size: 0.85em;
+                margin-bottom: 2px;
+            }}
+            .cert-date {{
+                font-size: 0.8em;
+            }}
             section {{
                 margin-bottom: 15px;
             }}
@@ -657,9 +753,14 @@ def generate_html(data: Dict[str, Any]) -> str:
             </section>
 
             <section>
-                <h2>Education & Certifications</h2>
+                <h2>Education</h2>
 
 {edu_html}            </section>
+
+            <section>
+                <h2>Certifications</h2>
+
+{cert_html}            </section>
 
         </div>
     </div>
