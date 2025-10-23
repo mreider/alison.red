@@ -6,7 +6,12 @@
       "Bash(./generate)",
       "Bash(brew:*)",
       "Read(//Applications/Google Chrome.app/Contents/MacOS/**)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(open index.html)",
+      "Bash(/opt/homebrew/bin/chromium:*)",
+      "Read(//Applications/**)",
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --print-to-pdf=resume.pdf --print-to-pdf-no-header --virtual-time-budget=2000 file:///Users/matthew.reider/alison.red/index.html)",
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --print-to-pdf=resume.pdf --print-to-pdf-no-header --no-pdf-header-footer --disable-pdf-tagging --virtual-time-budget=2000 file:///Users/matthew.reider/alison.red/index.html)"
     ],
     "deny": [],
     "ask": []

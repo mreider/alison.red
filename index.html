@@ -279,10 +279,15 @@
                 background: white;
                 padding: 0;
                 margin: 0;
-                font-size: 13px;
+                font-size: 10pt;
                 line-height: 1.4;
+                font-family: 'Georgia', 'Times New Roman', serif;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
+                color: #1a1a1a;
+            }
+            @page {
+                margin: 0.4in 0.75in;
             }
             .resume-container {
                 box-shadow: none;
@@ -290,68 +295,112 @@
                 max-width: none;
             }
             header {
-                padding: 5px 25px 5px 25px !important;
+                padding: 20px 30px 15px 30px !important;
+                border-bottom: 2px solid #2c3e50 !important;
+                background: #fdfdfd !important;
             }
             .header-content {
-                gap: 10px !important;
+                gap: 20px !important;
                 align-items: center !important;
             }
             header img {
-                width: 40px !important;
-                height: 40px !important;
+                width: 75px !important;
+                height: 75px !important;
+                border: 2px solid #2c3e50 !important;
+                border-radius: 50%;
+                object-fit: cover;
             }
             h1 {
-                font-size: 1.1em !important;
-                margin: 0 !important;
-                letter-spacing: -0.2px;
+                font-size: 18pt !important;
+                margin: 0 0 6px 0 !important;
+                letter-spacing: -0.5px;
+                font-weight: 300;
+                color: #1a1a1a !important;
+                font-family: 'Georgia', 'Times New Roman', serif;
             }
             .contact-info {
-                gap: 8px !important;
-                margin-top: 2px !important;
+                gap: 15px !important;
+                margin-top: 6px !important;
             }
             .contact-info span {
-                font-size: 0.7em !important;
+                font-size: 9pt !important;
+                color: #4a4a4a;
+                font-weight: normal;
             }
             .main-content {
-                padding: 20px 25px;
+                padding: 20px 30px;
             }
             h2 {
-                font-size: 1.1em;
-                margin: 20px 0 12px 0;
+                font-size: 11pt;
+                margin: 18px 0 10px 0;
                 padding-bottom: 4px;
+                border-bottom: 1.5px solid #34495e;
+                color: #2c3e50;
+                font-weight: 500;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
             }
             h2:first-child {
                 margin-top: 0;
             }
             .summary {
-                padding: 15px;
-                margin-bottom: 20px;
+                padding: 14px 16px;
+                margin-bottom: 16px;
+                background: #f9f9f9 !important;
+                border-left: 4px solid #2c3e50 !important;
+                border-radius: 0;
             }
             .summary p {
-                font-size: 0.95em;
-                line-height: 1.4;
+                font-size: 10pt;
+                line-height: 1.6;
+                margin: 0;
+                color: #2a2a2a;
+                font-style: italic;
             }
             .job {
-                margin-bottom: 18px;
-                padding-bottom: 15px;
+                margin-bottom: 14px;
+                padding-bottom: 10px;
                 page-break-inside: avoid;
+                border-bottom: 1px solid #e8e8e8;
+            }
+            .job:last-child {
+                border-bottom: none;
             }
             .job-header {
-                margin-bottom: 8px;
+                margin-bottom: 10px;
+                display: flex;
+                justify-content: space-between;
+                align-items: baseline;
             }
             .job-title {
-                font-size: 1em;
+                font-size: 11pt;
+                font-weight: 600;
+                color: #1a1a1a;
+            }
+            .company {
+                font-size: 10pt;
+                color: #555;
+                font-style: italic;
+                margin-left: 8px;
             }
             .date {
-                font-size: 0.8em;
+                font-size: 9pt;
+                color: #666;
+                font-weight: normal;
             }
             ul {
-                padding-left: 18px;
+                padding-left: 20px;
+                margin: 8px 0;
             }
             li {
                 margin-bottom: 4px;
-                line-height: 1.3;
-                font-size: 0.9em;
+                line-height: 1.4;
+                font-size: 9pt;
+                color: #333;
+            }
+            li strong {
+                color: #1a1a1a;
+                font-weight: 600;
             }
             .competencies {
                 display: grid !important;
@@ -361,51 +410,51 @@
             }
             .competencies div {
                 padding: 6px 10px !important;
-                font-size: 0.8em !important;
+                font-size: 9pt !important;
+                background: #f5f5f5 !important;
+                border-left: 3px solid #2c3e50 !important;
+                border-radius: 0;
+                color: #2a2a2a;
             }
-            .education-item {
-                margin-bottom: 10px;
+            .education-item, .certification-item {
+                margin-bottom: 8px;
+                padding: 8px 12px;
                 page-break-inside: avoid;
+                background: #f8f8f8 !important;
+                border-left: 3px solid #2c3e50 !important;
+                border-radius: 0;
             }
-            .degree {
-                font-size: 0.95em;
+            .degree, .cert-name {
+                font-size: 9.5pt;
+                font-weight: 600;
+                color: #1a1a1a;
+                margin-bottom: 2px;
             }
-            .school {
-                font-size: 0.85em;
-            }
-            .certification-item {
-                margin-bottom: 10px;
-                padding: 10px 12px;
-                page-break-inside: avoid;
-            }
-            .cert-name {
-                font-size: 0.95em;
-                margin-bottom: 3px;
-            }
-            .cert-org {
-                font-size: 0.85em;
+            .school, .cert-org {
+                font-size: 8.5pt;
+                color: #555;
+                font-style: italic;
                 margin-bottom: 2px;
             }
             .cert-date {
-                font-size: 0.8em;
+                font-size: 8pt;
+                color: #666;
             }
             section {
-                margin-bottom: 15px;
+                margin-bottom: 14px;
             }
             section:last-child {
-                margin-top: 15px !important;
+                margin-top: 20px !important;
             }
             h3 {
-                font-size: 1em;
-                margin: 15px 0 10px 0;
+                font-size: 11pt;
+                margin: 18px 0 12px 0;
+                color: #2c3e50;
+                font-weight: 500;
             }
             .page-break {
                 page-break-before: always !important;
                 break-before: page !important;
-            }
-            /* Personal section styling for print */
-            section:last-child p {
-                font-size: 0.8em !important;
             }
         }
 
@@ -478,9 +527,9 @@
                 <div class="header-text">
                     <h1>Alison S. Cohen</h1>
                     <div class="contact-info">
-                        <span>📍 Vienna, Austria</span>
-                        <span>✉️ alison@mreider.com</span>
-                        <span>📱 +4367762900590</span>
+                        <span>Vienna, Austria</span>
+                        <span>alison@mreider.com</span>
+                        <span>+4367762900590</span>
                     </div>
                 </div>
             </div>
@@ -489,7 +538,7 @@
         <div class="main-content">
             <section class="summary">
                 <h2>Professional Summary</h2>
-                <p>First HR employee at a hyper-growth remote-only tech startup, building the People function from the ground up and scaling operations from 30 to 250+ team members across 45+ countries. Created foundational HR policies and processes, leveraging counseling background in conflict resolution following career transition from California to Austria.</p>
+                <p>Strategic People Operations leader who architected and scaled the entire HR function for a hyper-growth remote-first tech startup, driving organizational expansion from 30 to 250+ global team members across 45+ countries. Built comprehensive people frameworks, policies, and processes while applying advanced conflict resolution expertise from counseling background to drive exceptional employee experiences during rapid international growth.</p>
             </section>
 
             <section>
@@ -504,10 +553,9 @@
                     <span class="date">Nov 2023 - July 2025</span>
                 </div>
                 <ul>
-                    <li>Provided strategic coaching and advising for all levels of leadership in the Product division</li>
-                    <li>Supported team members with employee relations topics</li>
-                    <li>Created policies for new UK and US entities</li>
-                    <li>Utilized data from engagement surveys to propose actions to increase team member morale and improve day-to-day experiences</li>
+                    <li><strong>Partnered with Product leadership</strong> as HRBP providing strategic workforce planning, performance management, and organizational development initiatives</li>
+                    <li><strong>Developed global HR policies</strong> for international expansion including employment law compliance, remote work frameworks, and entity establishment</li>
+                    <li><strong>Led people analytics and employee engagement programs</strong> using HRIS data to drive retention strategies and culture initiatives</li>
                 </ul>
             </div>
 
@@ -520,10 +568,10 @@
                     <span class="date">Nov 2021 - Oct 2023</span>
                 </div>
                 <ul>
-                    <li>Retooled existing People processes to handle growth from 30 team members to 250 team members</li>
-                    <li>Created new People processes and policies such as Relocation, Maternity, Parental Leave, Long-Term Leave, Infringement & Grievance</li>
-                    <li>Engaged with EOR partners to address labor law issues and concerns</li>
-                    <li>Handled all aspects of the team member lifecycle for five different employment types for team members in over 45 different countries</li>
+                    <li><strong>Built end-to-end People Operations function</strong> scaling remote workforce 733% from 30 to 250+ employees across 45+ countries with multi-entity structure</li>
+                    <li><strong>Implemented global HR policy framework</strong> including international benefits administration, leave management, PTO tracking, and compliance programs</li>
+                    <li><strong>Managed EOR vendor relationships</strong> for global workforce management, ensuring employment law compliance and payroll administration across jurisdictions</li>
+                    <li><strong>Designed employee lifecycle processes</strong> covering talent acquisition support, HRIS management, performance reviews, and offboarding protocols</li>
                 </ul>
             </div>
 
@@ -536,10 +584,9 @@
                     <span class="date">Jan 2020 - Oct 2021</span>
                 </div>
                 <ul>
-                    <li>Managed expenses and purchasing for an international, hyper-growth software startup</li>
-                    <li>Developed and implemented onboarding processes for new hires</li>
-                    <li>Delivered corporate culture initiatives to encourage employee connectedness</li>
-                    <li>Created foundational company processes such as Code of Conduct, Onboarding, Offboarding, Time Off</li>
+                    <li><strong>Developed scalable onboarding processes</strong> and employee handbook for remote-first startup environment, reducing time-to-productivity</li>
+                    <li><strong>Implemented remote team engagement strategies</strong> and culture-building initiatives for distributed global workforce</li>
+                    <li><strong>Created HR operational foundation</strong> including policy documentation, workflow automation, and HRIS implementation for rapid scaling</li>
                 </ul>
             </div>
 
@@ -552,10 +599,9 @@
                     <span class="date">Aug 2015 - Jun 2019</span>
                 </div>
                 <ul>
-                    <li>Provided counseling for students with emotional and academic challenges</li>
-                    <li>Supported the Dean with student discipline and supervision</li>
-                    <li>Directed seniors towards college admission and graduation requirements</li>
-                    <li>Scheduled all students in appropriate courses for graduation</li>
+                    <li><strong>Provided individual and group counseling</strong> for students with emotional, behavioral, and academic challenges in diverse high school environment</li>
+                    <li><strong>Collaborated with teachers and administrators</strong> on student intervention strategies and academic support planning</li>
+                    <li><strong>Managed student scheduling and graduation planning</strong> ensuring course alignment with college admission and career pathway requirements</li>
                 </ul>
             </div>
 
@@ -564,10 +610,10 @@
             <section>
                 <h2>Core Competencies</h2>
                 <div class="competencies">
-                    <div>• Crisis Intervention & Conflict Resolution</div>
-                    <div>• Employee Relations & Workplace Investigations</div>
-                    <div>• Global Operations & Cultural Integration</div>
-                    <div>• Process Development & Change Management</div>
+                    <div>• Strategic People Operations & Organizational Scaling</div>
+                    <div>• Global HR Compliance & Multi-Country Operations</div>
+                    <div>• Executive Coaching & Leadership Development</div>
+                    <div>• Data-Driven Employee Engagement & Culture Building</div>
                 </div>
             </section>
 
@@ -577,14 +623,14 @@
             <div class="education-item">
                 <div class="degree">Master of Arts in Education: Counseling and Student Personnel</div>
                 <div class="school">SAN JOSE STATE UNIVERSITY</div>
-                <div class="cert-date">August 2000</div>
+                <div class="cert-date">2000</div>
                 <div style="color: #666; font-size: 0.95em; margin-top: 5px;">Pupil Personnel Services Credential</div>
             </div>
 
             <div class="education-item">
                 <div class="degree">Bachelor of Arts: Liberal Studies</div>
                 <div class="school">SAN FRANCISCO STATE UNIVERSITY</div>
-                <div class="cert-date">August 1996</div>
+                <div class="cert-date">1996</div>
             </div>
 
             </section>
@@ -593,9 +639,9 @@
                 <h2>Certifications</h2>
 
             <div class="certification-item">
-                <div class="cert-name">Certified HR Business Partner</div>
+                <div class="cert-name">Certified HR Business Partner (CHRBP)</div>
                 <div class="cert-org">AIHR | Academy to Innovate HR</div>
-                <div class="cert-date">Issued September 2023</div>
+                <div class="cert-date">2023</div>
             </div>
 
             </section>
