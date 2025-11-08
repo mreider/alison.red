@@ -26,20 +26,29 @@ def parse_resume_data(filename: str) -> Dict[str, Any]:
         data['location'] = re.search(r'LOCATION: (.+)', content).group(1)
     else:
         # New format - parse header line
-        header_match = re.search(r'(.+?)\s+(.+?)\s+✦\s+(.+?)\s+✦\s+(.+)', content.split('\n')[0])
-        if header_match:
-            data['name'] = header_match.group(1).strip()
-            data['location'] = header_match.group(2).strip()
-            data['phone'] = header_match.group(3).strip()
-            data['email'] = header_match.group(4).strip()
+        first_line = content.split('\n')[0]
+        # More flexible parsing for the format: "ALISON S. COHEN      Vienna, Austria  ✦  +4367763177110  ✦  alison.cohen@gmail.com"
+        parts = first_line.split('✦')
+        if len(parts) >= 3:
+            # Extract name and location from first part
+            first_part = parts[0].strip()
+            # Find where location starts (look for capital letter after spaces)
+            location_match = re.search(r'(.+?)\s{2,}([A-Z].+)$', first_part)
+            if location_match:
+                data['name'] = location_match.group(1).strip()
+                data['location'] = location_match.group(2).strip()
+            else:
+                data['name'] = first_part
+                data['location'] = "Vienna, Austria"
+
+            data['phone'] = parts[1].strip()
+            data['email'] = parts[2].strip()
         else:
             # Fallback parsing
-            first_line = content.split('\n')[0]
-            parts = first_line.split('✦')
-            data['name'] = parts[0].strip() if len(parts) > 0 else "Unknown"
+            data['name'] = parts[0].strip() if len(parts) > 0 else "ALISON S. COHEN"
             data['phone'] = parts[1].strip() if len(parts) > 1 else ""
             data['email'] = parts[2].strip() if len(parts) > 2 else ""
-            data['location'] = "Vienna, Austria"  # Default from context
+            data['location'] = "Vienna, Austria"
 
     # Parse summary - handle both old and new formats
     summary_match = re.search(r'SUMMARY:\n(.+?)(?=\n[A-Z])', content, re.DOTALL)
@@ -104,12 +113,11 @@ def parse_resume_data(filename: str) -> Dict[str, Any]:
                 # First line should have dates and company
                 if lines and re.search(r'[A-Z][a-z]+ \d{4}', lines[0]):
                     first_line = lines[0]
-                    # Extract dates (everything up to first uppercase company name)
-                    date_match = re.match(r'([A-Z][a-z]+ \d{4}[^A-Z]*)', first_line)
+                    # Extract dates (everything up to multiple spaces before company)
+                    date_match = re.match(r'([A-Z][a-z]+ \d{4}(?:\s*-\s*[A-Z][a-z]+ \d{4})?)\s{2,}(.+)', first_line)
                     if date_match:
                         dates = date_match.group(1).strip()
-                        # Company is the rest of the first line
-                        company = first_line[len(dates):].strip()
+                        company = date_match.group(2).strip()
 
                         # Second line should be the title
                         title = lines[1].strip() if len(lines) > 1 else ""
@@ -172,19 +180,8 @@ def parse_resume_data(filename: str) -> Dict[str, Any]:
 
 
 
-    # Parse competencies
-    comp_match = re.search(r'CORE COMPETENCIES:\n(.+?)(?=\n[A-Z])', content, re.DOTALL)
-    if comp_match:
-        comp_text = comp_match.group(1).strip()
-        data['competencies'] = [line.strip('• ').strip() for line in comp_text.split('\n') if line.strip().startswith('•')]
-    else:
-        # For new format, create default competencies from experience
-        data['competencies'] = [
-            "Strategic HR Leadership & Business Partnership",
-            "Global Operations & Cultural Integration",
-            "Employee Relations & Workplace Investigations",
-            "Process Development & Change Management"
-        ]
+    # Parse competencies - not used in this resume format
+    data['competencies'] = []
 
     # Parse education from text file
     data['education'] = []
@@ -379,14 +376,17 @@ def generate_html(data: Dict[str, Any]) -> str:
 """
 
 
-    # Generate competencies HTML
+    # Generate competencies HTML - skip if empty
     comp_html = ""
-    for comp in data['competencies']:
-        comp_html += f"                    <div>• {comp}</div>\n"
+    if data['competencies']:
+        comp_icons = ["🤝", "🌍", "👥", "⚙️"]
+        for i, comp in enumerate(data['competencies']):
+            icon = comp_icons[i] if i < len(comp_icons) else "✓"
+            comp_html += f"                    <div>{icon} {comp}</div>\n"
 
     # Generate education HTML from parsed data
     edu_html = ""
-    for edu in data['education']:
+    for i, edu in enumerate(data['education']):
         edu_html += f"""            <div class="education-item">
                 <div class="degree">{edu['degree']}</div>
                 <div class="school">{edu['school']}</div>
@@ -419,45 +419,47 @@ def generate_html(data: Dict[str, Any]) -> str:
     <title>{data['name']} - Resume</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👩</text></svg>">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Crimson+Text:wght@400;600&display=swap');
 
         body {{
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-            line-height: 1.7;
-            color: #2c3e50;
+            line-height: 1.45;
+            color: #000000;
             font-weight: 400;
-            max-width: 920px;
+            max-width: 8.5in;
             margin: 0 auto;
-            padding: 40px 20px;
-            background: #fcfcfc;
+            padding: 0.4in 0.5in 0.2in 0.5in;
+            background: #ffffff;
+            font-size: 11pt;
         }}
 
         .resume-container {{
             background: #ffffff;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.06), 0 8px 40px rgba(0,0,0,0.03);
-            border: 1px solid #f0f0f0;
             overflow: hidden;
             position: relative;
         }}
 
         header {{
-            padding: 60px 50px 50px 50px;
+            padding: 18pt 32pt 14pt 32pt;
             background: #ffffff;
-            border-bottom: 1px solid #eaeaea;
+            color: #000000;
+            position: relative;
+            border-bottom: 1.5pt solid #000000;
+            margin-bottom: 14pt;
         }}
 
         .header-content {{
             display: flex;
             align-items: center;
-            gap: 40px;
+            gap: 24pt;
         }}
 
         header img {{
-            width: 110px;
-            height: 110px;
+            width: 100pt;
+            height: 100pt;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid #f8f9fa;
+            border: 2pt solid #cccccc;
         }}
 
         .header-text {{
@@ -465,24 +467,29 @@ def generate_html(data: Dict[str, Any]) -> str:
         }}
 
         h1 {{
-            margin: 0 0 15px 0;
-            color: #1a202c;
-            font-size: 2.4em;
-            font-weight: 300;
-            letter-spacing: -0.8px;
+            margin: 0 0 10pt 0;
+            color: #000000;
+            font-family: 'Crimson Text', serif;
+            font-size: 22pt;
+            font-weight: 700;
+            letter-spacing: -0.8pt;
         }}
 
         .contact-info {{
             display: flex;
             flex-wrap: wrap;
-            gap: 24px;
-            margin-top: 15px;
+            gap: 18pt;
+            margin-top: 8pt;
         }}
 
         .contact-info span {{
-            color: #6b7280;
-            font-size: 0.95em;
-            font-weight: 400;
+            color: #555555;
+            font-size: 11pt;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5pt;
+            padding: 3pt 0;
         }}
 
         .action-icons {{
@@ -521,17 +528,19 @@ def generate_html(data: Dict[str, Any]) -> str:
         }}
 
         .main-content {{
-            padding: 50px;
+            padding: 0pt 32pt 0pt 32pt;
         }}
 
         h2 {{
-            color: #1a202c;
-            font-size: 1.3em;
-            font-weight: 500;
-            margin: 40px 0 20px 0;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #eaeaea;
-            letter-spacing: -0.2px;
+            color: #000000;
+            font-family: 'Crimson Text', serif;
+            font-size: 14pt;
+            font-weight: 700;
+            margin: 16pt 0 10pt 0;
+            padding-bottom: 5pt;
+            border-bottom: 1.5pt solid #000000;
+            letter-spacing: -0.3pt;
+            position: relative;
         }}
 
         h2:first-child {{
@@ -539,21 +548,27 @@ def generate_html(data: Dict[str, Any]) -> str:
         }}
 
         .summary {{
-            background: #f8f9fa;
-            padding: 25px;
-            margin-bottom: 30px;
-            border-left: 3px solid #34495e;
+            background: #f7f7f7;
+            padding: 14pt 16pt;
+            margin-bottom: 18pt;
+            border-left: 4pt solid #000000;
+            border-top: 0.75pt solid #cccccc;
+            border-bottom: 0.75pt solid #cccccc;
         }}
 
         .summary p {{
             margin: 0;
-            font-size: 1.05em;
-            line-height: 1.7;
-            color: #2c3e50;
+            font-size: 10.5pt;
+            line-height: 1.5;
+            color: #222222;
+            font-weight: 400;
+            font-style: italic;
         }}
 
         .job {{
-            margin-bottom: 25px;
+            margin-bottom: 14pt;
+            padding: 0;
+            background: #ffffff;
         }}
 
 
@@ -562,78 +577,78 @@ def generate_html(data: Dict[str, Any]) -> str:
             justify-content: space-between;
             align-items: baseline;
             flex-wrap: wrap;
-            margin-bottom: 12px;
+            margin-bottom: 9pt;
         }}
 
         .job-title {{
-            font-weight: 500;
-            color: #1a202c;
-            font-size: 1.1em;
+            font-weight: 600;
+            color: #000000;
+            font-size: 12pt;
+            font-family: 'Crimson Text', serif;
+            line-height: 1.2;
         }}
 
         .company {{
-            color: #6b7280;
-            font-weight: 400;
-            padding-left: 8px;
+            color: #555555;
+            font-weight: 500;
+            padding-left: 10pt;
+            font-size: 10pt;
         }}
 
         .date {{
-            color: #9ca3af;
-            font-size: 0.9em;
-            font-weight: 400;
+            color: #555555;
+            font-size: 10pt;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
         }}
 
         ul {{
-            margin: 0;
-            padding-left: 22px;
+            margin: 0 0 8pt 0;
+            padding-left: 20pt;
         }}
 
         li {{
-            margin-bottom: 8px;
-            line-height: 1.65;
-            color: #4a5568;
+            margin-bottom: 5pt;
+            line-height: 1.5;
+            color: #333333;
+            font-size: 10pt;
+            font-weight: 400;
         }}
 
         li strong {{
-            color: #2c3e50;
-            font-weight: 500;
+            color: #000000;
+            font-weight: 600;
         }}
 
-        .competencies {{
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
-        }}
-
-        .competencies div {{
-            color: #2c3e50;
-            font-weight: 400;
-            padding: 16px 20px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            border-left: 3px solid #34495e;
-        }}
 
         .education-item {{
-            margin-bottom: 15px;
-            padding: 18px 20px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            border-left: 3px solid #34495e;
+            margin-bottom: 8pt;
+            padding: 12pt 14pt;
+            background: #f7f7f7;
+            border: 1pt solid #cccccc;
+            border-left: 4pt solid #000000;
+        }}
+
+        .education-item:last-child {{
+            margin-bottom: 0pt;
         }}
 
         .degree {{
-            font-weight: 500;
-            color: #1a202c;
-            font-size: 1.05em;
-            margin-bottom: 5px;
+            font-weight: 600;
+            color: #000000;
+            font-size: 12pt;
+            font-family: 'Crimson Text', serif;
+            margin-bottom: 5pt;
+            line-height: 1.2;
         }}
 
         .school {{
-            color: #6b7280;
-            font-weight: 400;
-            margin-bottom: 3px;
+            color: #555555;
+            font-weight: 600;
+            margin-bottom: 4pt;
+            text-transform: uppercase;
+            font-size: 9pt;
+            letter-spacing: 0.8pt;
         }}
 
         .certification-item {{
@@ -658,9 +673,9 @@ def generate_html(data: Dict[str, Any]) -> str:
         }}
 
         .cert-date {{
-            color: #9ca3af;
-            font-size: 0.9em;
-            font-weight: 400;
+            color: #000000;
+            font-size: 9pt;
+            font-weight: 600;
         }}
 
 
@@ -677,197 +692,19 @@ def generate_html(data: Dict[str, Any]) -> str:
         }}
 
         section {{
-            margin-bottom: 35px;
+            margin-bottom: 18pt;
         }}
 
         section:last-child {{
-            margin-top: 25px;
+            margin-bottom: 0pt;
         }}
 
         @media print {{
             .action-icons {{
                 display: none !important;
             }}
-            body {{
-                background: white;
-                padding: 0;
-                margin: 0;
-                font-size: 13px;
-                line-height: 1.4;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }}
-            .resume-container {{
-                box-shadow: none;
-                border: none;
-                max-width: none;
-            }}
-            header {{
-                padding: 8px 20px 8px 20px !important;
-                border-bottom: 1px solid #eaeaea;
-            }}
-            .header-content {{
-                gap: 8px !important;
-                align-items: center !important;
-            }}
-            header img {{
-                width: 35px !important;
-                height: 35px !important;
-            }}
-            h1 {{
-                font-size: 1.05em !important;
-                margin: 0 !important;
-                letter-spacing: -0.2px;
-            }}
-            .contact-info {{
-                gap: 6px !important;
-                margin-top: 2px !important;
-            }}
-            .contact-info span {{
-                font-size: 0.65em !important;
-            }}
-            .main-content {{
-                padding: 12px 20px;
-            }}
-            h2 {{
-                font-size: 1em;
-                margin: 12px 0 6px 0;
-                padding-bottom: 3px;
-            }}
-            h2:first-child {{
-                margin-top: 0;
-            }}
-            .summary {{
-                padding: 10px;
-                margin-bottom: 12px;
-                border-left: 2px solid #34495e;
-            }}
-            .summary p {{
-                font-size: 1em;
-                line-height: 1.4;
-                margin: 0;
-            }}
-            .job {{
-                margin-bottom: 12px;
-                padding-bottom: 0;
-                page-break-inside: avoid;
-            }}
-            .job-header {{
-                margin-bottom: 6px;
-            }}
-            .job-title {{
-                font-size: 1em;
-            }}
-            .company {{
-                font-size: 0.9em;
-            }}
-            .date {{
-                font-size: 0.85em;
-            }}
-            ul {{
-                padding-left: 18px;
-                margin: 0 0 8px 0;
-            }}
-            li {{
-                margin-bottom: 3px;
-                line-height: 1.3;
-                font-size: 0.9em;
-            }}
-            .competencies {{
-                display: grid !important;
-                grid-template-columns: 1fr 1fr !important;
-                gap: 6px !important;
-                margin-top: 8px !important;
-            }}
-            .competencies div {{
-                padding: 8px 12px !important;
-                font-size: 0.85em !important;
-                border-left: 2px solid #34495e;
-            }}
-            .education-item {{
-                margin-bottom: 8px;
-                padding: 12px 15px;
-                page-break-inside: avoid;
-                border-left: 2px solid #34495e;
-            }}
-            .degree {{
-                font-size: 0.95em;
-                margin-bottom: 3px;
-            }}
-            .school {{
-                font-size: 0.85em;
-                margin-bottom: 3px;
-            }}
-            .cert-date {{
-                font-size: 0.8em;
-            }}
-            section {{
-                margin-bottom: 10px;
-            }}
-            section:last-child {{
-                margin-top: 8px !important;
-            }}
-            h3 {{
-                font-size: 0.9em;
-                margin: 10px 0 6px 0;
-            }}
-            .page-break {{
-                page-break-before: always !important;
-                break-before: page !important;
-            }}
         }}
 
-        @media (max-width: 768px) {{
-            body {{
-                padding: 20px 15px;
-            }}
-            header {{
-                padding: 40px 30px 35px 30px;
-            }}
-            .header-content {{
-                flex-direction: column;
-                text-align: center;
-                gap: 25px;
-            }}
-            header img {{
-                width: 95px;
-                height: 95px;
-            }}
-            h1 {{
-                font-size: 2em;
-            }}
-            .contact-info {{
-                justify-content: center;
-                gap: 18px;
-            }}
-            .main-content {{
-                padding: 35px 30px;
-            }}
-            .job-header {{
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 6px;
-            }}
-            .competencies {{
-                grid-template-columns: 1fr;
-            }}
-        }}
-
-        @media (max-width: 480px) {{
-            header {{
-                padding: 30px 25px;
-            }}
-            .main-content {{
-                padding: 30px 25px;
-            }}
-            h1 {{
-                font-size: 1.8em;
-            }}
-            .contact-info {{
-                flex-direction: column;
-                gap: 12px;
-            }}
-        }}
     </style>
 </head>
 <body>
@@ -886,9 +723,9 @@ def generate_html(data: Dict[str, Any]) -> str:
                 <div class="header-text">
                     <h1>{data['name']}</h1>
                     <div class="contact-info">
-                        <span>📍 {data['location']}</span>
-                        <span>✉️ {data['email']}</span>
-                        <span>📱 {data['phone']}</span>
+                        <span>{data['location']}</span>
+                        <span>{data['email']}</span>
+                        <span>{data['phone']}</span>
                     </div>
                 </div>
             </div>
@@ -904,12 +741,6 @@ def generate_html(data: Dict[str, Any]) -> str:
                 <h2>Professional Experience</h2>
 
 {jobs_html}            </section>
-
-            <section>
-                <h2>Core Competencies</h2>
-                <div class="competencies">
-{comp_html}                </div>
-            </section>
 
             <section>
                 <h2>Education</h2>
