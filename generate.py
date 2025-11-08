@@ -16,15 +16,42 @@ def parse_resume_data(filename: str) -> Dict[str, Any]:
 
     data = {}
 
-    # Parse basic info
-    data['name'] = re.search(r'NAME: (.+)', content).group(1)
-    data['phone'] = re.search(r'PHONE: (.+)', content).group(1)
-    data['email'] = re.search(r'EMAIL: (.+)', content).group(1)
-    data['location'] = re.search(r'LOCATION: (.+)', content).group(1)
+    # Parse basic info - handle both old and new formats
+    name_match = re.search(r'NAME: (.+)', content)
+    if name_match:
+        # Old format
+        data['name'] = name_match.group(1)
+        data['phone'] = re.search(r'PHONE: (.+)', content).group(1)
+        data['email'] = re.search(r'EMAIL: (.+)', content).group(1)
+        data['location'] = re.search(r'LOCATION: (.+)', content).group(1)
+    else:
+        # New format - parse header line
+        header_match = re.search(r'(.+?)\s+(.+?)\s+✦\s+(.+?)\s+✦\s+(.+)', content.split('\n')[0])
+        if header_match:
+            data['name'] = header_match.group(1).strip()
+            data['location'] = header_match.group(2).strip()
+            data['phone'] = header_match.group(3).strip()
+            data['email'] = header_match.group(4).strip()
+        else:
+            # Fallback parsing
+            first_line = content.split('\n')[0]
+            parts = first_line.split('✦')
+            data['name'] = parts[0].strip() if len(parts) > 0 else "Unknown"
+            data['phone'] = parts[1].strip() if len(parts) > 1 else ""
+            data['email'] = parts[2].strip() if len(parts) > 2 else ""
+            data['location'] = "Vienna, Austria"  # Default from context
 
-    # Parse summary
+    # Parse summary - handle both old and new formats
     summary_match = re.search(r'SUMMARY:\n(.+?)(?=\n[A-Z])', content, re.DOTALL)
-    data['summary'] = summary_match.group(1).strip()
+    if summary_match:
+        data['summary'] = summary_match.group(1).strip()
+    else:
+        # New format - look for Executive Summary
+        exec_summary_match = re.search(r'Executive Summary\n(.+?)(?=\n\n[A-Z])', content, re.DOTALL)
+        if exec_summary_match:
+            data['summary'] = exec_summary_match.group(1).strip()
+        else:
+            data['summary'] = ""
 
     # Parse transition note
     transition_match = re.search(r'TRANSITION NOTE:\n(.+)', content)
@@ -33,31 +60,115 @@ def parse_resume_data(filename: str) -> Dict[str, Any]:
     # Parse jobs
     data['jobs'] = []
 
-    # Pattern for jobs with bullets (HR roles)
-    job_with_bullets_pattern = r'JOB TITLE: (.+?)\nCOMPANY: (.+?)\nDATES: (.+?)\n((?:- .+\n?)+)'
-    for match in re.finditer(job_with_bullets_pattern, content):
-        title, company, dates, bullets = match.groups()
-        bullet_list = [line.strip('- ').strip() for line in bullets.split('\n') if line.strip().startswith('-')]
-        data['jobs'].append({
-            'title': title,
-            'company': company,
-            'dates': dates,
-            'bullets': bullet_list
-        })
-
-    # Pattern for jobs without bullets (counseling roles)
-    job_without_bullets_pattern = r'JOB TITLE: (.+?)\nCOMPANY: (.+?)\nDATES: (.+?)(?=\n\n|\nJOB TITLE|\nMATERNITY|\nEARLY|\nCORE|\nEDUCATION|\nPERSONAL|$)'
-    for match in re.finditer(job_without_bullets_pattern, content):
-        title, company, dates = match.groups()
-        # Skip if this job was already found with bullets
-        already_exists = any(job['title'] == title.strip() and job['company'] == company.strip() for job in data['jobs'])
-        if not already_exists:
+    # Check if we have old format jobs
+    if 'JOB TITLE:' in content:
+        # Pattern for jobs with bullets (HR roles)
+        job_with_bullets_pattern = r'JOB TITLE: (.+?)\nCOMPANY: (.+?)\nDATES: (.+?)\n((?:- .+\n?)+)'
+        for match in re.finditer(job_with_bullets_pattern, content):
+            title, company, dates, bullets = match.groups()
+            bullet_list = [line.strip('- ').strip() for line in bullets.split('\n') if line.strip().startswith('-')]
             data['jobs'].append({
-                'title': title.strip(),
-                'company': company.strip(),
-                'dates': dates.strip(),
-                'bullets': []
+                'title': title,
+                'company': company,
+                'dates': dates,
+                'bullets': bullet_list
             })
+
+        # Pattern for jobs without bullets (counseling roles)
+        job_without_bullets_pattern = r'JOB TITLE: (.+?)\nCOMPANY: (.+?)\nDATES: (.+?)(?=\n\n|\nJOB TITLE|\nMATERNITY|\nEARLY|\nCORE|\nEDUCATION|\nPERSONAL|$)'
+        for match in re.finditer(job_without_bullets_pattern, content):
+            title, company, dates = match.groups()
+            # Skip if this job was already found with bullets
+            already_exists = any(job['title'] == title.strip() and job['company'] == company.strip() for job in data['jobs'])
+            if not already_exists:
+                data['jobs'].append({
+                    'title': title.strip(),
+                    'company': company.strip(),
+                    'dates': dates.strip(),
+                    'bullets': []
+                })
+    else:
+        # New format parsing
+        # Parse Human Resources Experience section
+        hr_section_match = re.search(r'Human Resources Experience\n\n(.+?)(?=School Counseling Experience)', content, re.DOTALL)
+        if hr_section_match:
+            hr_content = hr_section_match.group(1)
+            # Split by double newlines to get individual jobs
+            job_blocks = re.split(r'\n\n+', hr_content.strip())
+
+            for block in job_blocks:
+                if not block.strip():
+                    continue
+                lines = block.strip().split('\n')
+
+                # First line should have dates and company
+                if lines and re.search(r'[A-Z][a-z]+ \d{4}', lines[0]):
+                    first_line = lines[0]
+                    # Extract dates (everything up to first uppercase company name)
+                    date_match = re.match(r'([A-Z][a-z]+ \d{4}[^A-Z]*)', first_line)
+                    if date_match:
+                        dates = date_match.group(1).strip()
+                        # Company is the rest of the first line
+                        company = first_line[len(dates):].strip()
+
+                        # Second line should be the title
+                        title = lines[1].strip() if len(lines) > 1 else ""
+
+                        # Remaining lines are bullets
+                        bullet_list = []
+                        for line in lines[2:]:
+                            if line.strip().startswith('*'):
+                                bullet_list.append(line.strip('* ').strip())
+
+                        data['jobs'].append({
+                            'title': title,
+                            'company': company,
+                            'dates': dates,
+                            'bullets': bullet_list
+                        })
+
+        # Parse School Counseling Experience section
+        school_section_match = re.search(r'School Counseling Experience\n\n(.+?)(?=Education)', content, re.DOTALL)
+        if school_section_match:
+            school_content = school_section_match.group(1)
+            # Split by double newlines to get individual jobs
+            job_blocks = re.split(r'\n\n+', school_content.strip())
+
+            for block in job_blocks:
+                if not block.strip():
+                    continue
+                lines = [line.strip() for line in block.strip().split('\n') if line.strip()]
+
+                # Each block should have a date line, so find it
+                for i, line in enumerate(lines):
+                    # Look for date pattern at start of line - more flexible pattern
+                    date_match = re.match(r'([A-Z][a-z]+ \d{4}(?:\s*-\s*[A-Z][a-z]+ \d{4})?)\s+(.+)', line)
+                    if date_match:
+                        dates = date_match.group(1).strip()
+                        # Remove extra spaces and normalize
+                        dates = re.sub(r'\s+', ' ', dates)
+
+                        # Company is the second group
+                        company_part = date_match.group(2).strip()
+
+                        # Check if there's a next line for title
+                        if i + 1 < len(lines):
+                            title = lines[i + 1]
+                        else:
+                            # Special case for maternity leave
+                            if "MATERNITY" in company_part.upper():
+                                title = company_part
+                                company_part = ""
+                            else:
+                                title = "School Counselor"  # Default if no next line
+
+                        data['jobs'].append({
+                            'title': title,
+                            'company': company_part,
+                            'dates': dates,
+                            'bullets': []
+                        })
+                        break  # Only process one date per block
 
 
 
@@ -67,12 +178,19 @@ def parse_resume_data(filename: str) -> Dict[str, Any]:
         comp_text = comp_match.group(1).strip()
         data['competencies'] = [line.strip('• ').strip() for line in comp_text.split('\n') if line.strip().startswith('•')]
     else:
-        data['competencies'] = []
+        # For new format, create default competencies from experience
+        data['competencies'] = [
+            "Strategic HR Leadership & Business Partnership",
+            "Global Operations & Cultural Integration",
+            "Employee Relations & Workplace Investigations",
+            "Process Development & Change Management"
+        ]
 
     # Parse education from text file
     data['education'] = []
     edu_match = re.search(r'EDUCATION:\n\n(.+?)(?=\n[A-Z][A-Z\s&]+:|$)', content, re.DOTALL)
     if edu_match:
+        # Old format
         edu_text = edu_match.group(1).strip()
         lines = edu_text.split('\n')
         i = 0
@@ -108,6 +226,39 @@ def parse_resume_data(filename: str) -> Dict[str, Any]:
                 i += 2  # Skip school line
             else:
                 i += 1
+    else:
+        # New format - simpler structure
+        edu_section_match = re.search(r'Education\s*\n\n(.+?)(?=$)', content, re.DOTALL)
+        if edu_section_match:
+            edu_content = edu_section_match.group(1).strip()
+            # Split by double newlines to get individual education entries
+            edu_blocks = re.split(r'\n\n+', edu_content)
+
+            for block in edu_blocks:
+                if not block.strip():
+                    continue
+                lines = [line.strip() for line in block.split('\n') if line.strip()]
+
+                if lines:
+                    # First line should have date and school
+                    first_line = lines[0]
+                    date_match = re.match(r'([A-Z][a-z]+ \d{4})\s+(.+)', first_line)
+                    if date_match:
+                        date = date_match.group(1)
+                        school = date_match.group(2)
+
+                        # Next line should be degree
+                        degree = lines[1] if len(lines) > 1 else ""
+
+                        # Check for credentials on next line
+                        details = lines[2] if len(lines) > 2 else None
+
+                        data['education'].append({
+                            'degree': degree,
+                            'school': school,
+                            'date': date,
+                            'details': details
+                        })
 
     # Parse licenses & certifications
     data['certifications'] = []
@@ -140,6 +291,7 @@ def parse_resume_data(filename: str) -> Dict[str, Any]:
                 i += 3  # Skip organization and date lines
             else:
                 i += 1
+    # For new format, certifications are not included
 
     # Parse personal
     personal_match = re.search(r'PERSONAL:\n(.+)', content, re.DOTALL)
@@ -187,9 +339,9 @@ def generate_html(data: Dict[str, Any]) -> str:
 
 """
 
-    # Add California jobs with bullets (only the ones that have bullets)
+    # Add California jobs
     for job in california_jobs:
-        if job['bullets']:  # Only add jobs with bullet points
+        if job['bullets']:  # Jobs with bullet points
             bullets_html = ""
             for bullet in job['bullets']:
                 # Add <strong> tags for text before colons
@@ -210,6 +362,18 @@ def generate_html(data: Dict[str, Any]) -> str:
                 </div>
                 <ul>
 {bullets_html}                </ul>
+            </div>
+
+"""
+        else:  # Jobs without bullet points (like school counseling)
+            jobs_html += f"""            <div class="job">
+                <div class="job-header">
+                    <div>
+                        <span class="job-title">{job['title']}</span>
+                        <span class="company">{job['company']}</span>
+                    </div>
+                    <span class="date">{job['dates']}</span>
+                </div>
             </div>
 
 """
@@ -539,66 +703,73 @@ def generate_html(data: Dict[str, Any]) -> str:
                 max-width: none;
             }}
             header {{
-                padding: 5px 25px 5px 25px !important;
+                padding: 8px 20px 8px 20px !important;
+                border-bottom: 1px solid #eaeaea;
             }}
             .header-content {{
-                gap: 10px !important;
+                gap: 8px !important;
                 align-items: center !important;
             }}
             header img {{
-                width: 40px !important;
-                height: 40px !important;
+                width: 35px !important;
+                height: 35px !important;
             }}
             h1 {{
-                font-size: 1.1em !important;
+                font-size: 1.05em !important;
                 margin: 0 !important;
                 letter-spacing: -0.2px;
             }}
             .contact-info {{
-                gap: 8px !important;
+                gap: 6px !important;
                 margin-top: 2px !important;
             }}
             .contact-info span {{
-                font-size: 0.7em !important;
+                font-size: 0.65em !important;
             }}
             .main-content {{
-                padding: 20px 25px;
+                padding: 12px 20px;
             }}
             h2 {{
-                font-size: 1.1em;
-                margin: 20px 0 12px 0;
-                padding-bottom: 4px;
+                font-size: 1em;
+                margin: 12px 0 6px 0;
+                padding-bottom: 3px;
             }}
             h2:first-child {{
                 margin-top: 0;
             }}
             .summary {{
-                padding: 15px;
-                margin-bottom: 20px;
+                padding: 10px;
+                margin-bottom: 12px;
+                border-left: 2px solid #34495e;
             }}
             .summary p {{
-                font-size: 0.95em;
+                font-size: 1em;
                 line-height: 1.4;
+                margin: 0;
             }}
             .job {{
-                margin-bottom: 18px;
-                padding-bottom: 15px;
+                margin-bottom: 12px;
+                padding-bottom: 0;
                 page-break-inside: avoid;
             }}
             .job-header {{
-                margin-bottom: 8px;
+                margin-bottom: 6px;
             }}
             .job-title {{
                 font-size: 1em;
             }}
+            .company {{
+                font-size: 0.9em;
+            }}
             .date {{
-                font-size: 0.8em;
+                font-size: 0.85em;
             }}
             ul {{
                 padding-left: 18px;
+                margin: 0 0 8px 0;
             }}
             li {{
-                margin-bottom: 4px;
+                margin-bottom: 3px;
                 line-height: 1.3;
                 font-size: 0.9em;
             }}
@@ -609,52 +780,40 @@ def generate_html(data: Dict[str, Any]) -> str:
                 margin-top: 8px !important;
             }}
             .competencies div {{
-                padding: 6px 10px !important;
-                font-size: 0.8em !important;
+                padding: 8px 12px !important;
+                font-size: 0.85em !important;
+                border-left: 2px solid #34495e;
             }}
             .education-item {{
-                margin-bottom: 10px;
+                margin-bottom: 8px;
+                padding: 12px 15px;
                 page-break-inside: avoid;
+                border-left: 2px solid #34495e;
             }}
             .degree {{
                 font-size: 0.95em;
+                margin-bottom: 3px;
             }}
             .school {{
                 font-size: 0.85em;
-            }}
-            .certification-item {{
-                margin-bottom: 10px;
-                padding: 10px 12px;
-                page-break-inside: avoid;
-            }}
-            .cert-name {{
-                font-size: 0.95em;
                 margin-bottom: 3px;
-            }}
-            .cert-org {{
-                font-size: 0.85em;
-                margin-bottom: 2px;
             }}
             .cert-date {{
                 font-size: 0.8em;
             }}
             section {{
-                margin-bottom: 15px;
+                margin-bottom: 10px;
             }}
             section:last-child {{
-                margin-top: 15px !important;
+                margin-top: 8px !important;
             }}
             h3 {{
-                font-size: 1em;
-                margin: 15px 0 10px 0;
+                font-size: 0.9em;
+                margin: 10px 0 6px 0;
             }}
             .page-break {{
                 page-break-before: always !important;
                 break-before: page !important;
-            }}
-            /* Personal section styling for print */
-            section:last-child p {{
-                font-size: 0.8em !important;
             }}
         }}
 
@@ -757,10 +916,6 @@ def generate_html(data: Dict[str, Any]) -> str:
 
 {edu_html}            </section>
 
-            <section>
-                <h2>Certifications</h2>
-
-{cert_html}            </section>
 
         </div>
     </div>
